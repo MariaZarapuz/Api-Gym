@@ -1,72 +1,30 @@
 const router = require("express").Router();
 const Cliente = require("../../models/clientes.js");
 const {
-  check,
+  validatorCliente
+} = require('../../validaciones/validator');
+const {
   validationResult
 } = require("express-validator");
+
+
+//GET http://localhost:3000/api/clientes
 
 router.get("/", async (req, res) => {
   const rows = await Cliente.getAll();
   res.json(rows);
 });
 
+//GET http://localhost:3000/api/clientes/1
+
 router.get("/:clienteId", async (req, res) => {
   const cliente = await Cliente.getById(req.params.clienteId);
   res.json(cliente);
 });
 
-router.post(
-  "/",
-  [
-    check(
-      [
-        "nombre",
-        "apellidos",
-        "direccion",
-        "email",
-        "edad",
-        "sexo",
-        "cuota",
-        "fecha_nacimiento",
-        "dni"
+//POST http://localhost:3000/api/clientes
 
-      ],
-      "Completa todos los campos (nombre, apellidos, direccion, email, edad, sexo, cuota, fecha_nacimiento, dni)"
-    ).notEmpty(),
-    check("nombre", "Nombre no válido. Debe contener al menos 3 caracteres.")
-    .isLength({
-      min: 3
-    }),
-    check("apellidos", "Apellidos no válidos. Deben contener al menos 3 caracteres.")
-    .isLength({
-      min: 3
-    }),
-    check("direccion"),
-    check("email").isEmail(),
-    check(
-      "edad",
-      "Edad no válida. Debe estar comprendida entre 0 y 125."
-    ).isInt({
-      min: 0,
-      max: 125
-    }),
-    check("sexo", "escriba M para hombre o F para mujer")
-    .isIn(["M", "F"])
-    .isAlpha(["es-ES"]),
-    check("cuota"),
-    check(
-      "fecha_nacimiento",
-      "Debe introducir el formato de la fecha del siguiente modo aaaa-mm-dd"
-    )
-    .isISO8601()
-    .toDate(),
-    check("dni", "D.N.I no válido. Debe contener un total de 9 caracteres.")
-    .custom(value => {
-      return (/^\d{8}[a-zA-Z]$/).test(value)
-
-    })
-
-  ],
+router.post("/", validatorCliente,
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -85,10 +43,30 @@ router.post(
   }
 );
 
-router.put("/:id", async (req, res) => {
+//PUT http://localhost:3000/api/clientes/1
+
+router.put("/:id", validatorCliente, async (req, res) => {
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json(errors.array());
+  };
+  // console.log(req.body, req.params.id)
   const cliente = await Cliente.editById(req.body, req.params.id)
+  if (cliente["affectedRows"] === 1) {
+    res.json({
+      message: "Se ha editado el cliente"
+    })
+
+  } else {
+    res.json({
+      error: "El cliente no se ha modificado"
+    });
+  }
   res.json(cliente)
-})
+});
+
+//DELETE http://localhost:3000/api/clientes/16
 
 router.delete("/:clienteId", async (req, res) => {
   //console.log(req.body);

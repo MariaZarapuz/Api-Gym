@@ -2,7 +2,7 @@ const router = require("express").Router();
 const Profesor = require("../../models/profesores.js");
 const {
     validatorProfesor
-} = require('../../validaciones/profesores')
+} = require('../../validaciones/validator');
 const {
     validationResult
 } = require("express-validator");
@@ -28,11 +28,10 @@ router.post("/", validatorProfesor,
         if (!errors.isEmpty()) {
             return res.status(422).json(errors.array());
         };
-
         const result = await Profesor.create(req.body);
         if (result["affectedRows"] === 1) {
-            const ejercicio = await Profesor.getById(result["insertId"]);
-            res.json(ejercicio);
+            const profesor = await Profesor.getById(result["insertId"]);
+            res.json(profesor);
         } else {
             res.json({
                 error: "El ejercico no se ha insertado"
@@ -43,9 +42,20 @@ router.post("/", validatorProfesor,
 
 //PUT http://localhost:3000/api/profesores/:id
 
-
-router.put("/:id", async (req, res) => {
+router.put("/:id", validatorProfesor, async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json(errors.array());
+    };
     const profesor = await Profesor.editById(req.body, req.params.id)
+    if (profesor["affectedRows"] === 1) {
+        res.json(profesor)
+
+    } else {
+        res.json({
+            error: "El profesor no se ha modificado"
+        });
+    }
     res.json(profesor)
 });
 

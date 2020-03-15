@@ -53,12 +53,12 @@ const editById = ({
 ) => {
     return new Promise((resolve, reject) => {
         db.query(
-            "UPDATE ejercicios SET titulo,duracion,repeticiones VALUES(?,?,? ) WHERE id = ?",
+            "UPDATE ejercicios SET titulo=?,duracion=?,repeticiones=? WHERE id = ?",
             [
                 titulo,
                 duracion,
-                repiticiones,
-                ejercicoId
+                repeticiones,
+                ejercicioId
             ],
             (err, result) => {
                 if (err) return reject(err);

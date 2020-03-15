@@ -64,15 +64,17 @@ const editById = ({
     email,
     edad,
     sexo,
+    fecha_inscripcion,
     cuota,
     fecha_nacimiento,
     dni
   },
   clienteId
 ) => {
+
   return new Promise((resolve, reject) => {
     db.query(
-      "UPDATE clientes SET nombre, apellidos, direccion , email, edad, sexo, fecha_inscripcion, cuota, fecha_nacimiento, dni VALUES(?,?,?,?,?,?,?,?,?,? ) WHERE id = ?",
+      "UPDATE clientes SET nombre=?, apellidos=?, direccion=? , email=?, edad=?, sexo=?, fecha_inscripcion=?, cuota=?, fecha_nacimiento=?, dni=? WHERE id =?",
       [
         nombre,
         apellidos,
@@ -104,7 +106,7 @@ const deleteById = pclienteId => {
 };
 
 module.exports = {
-  getAll: getAll,
+  getAll,
   getById: getById,
   create: create,
   editById: editById,

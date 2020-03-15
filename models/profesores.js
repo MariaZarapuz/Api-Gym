@@ -45,7 +45,7 @@ const editById = ({
 }, profesorId) => {
     return new Promise((resolve, reject) => {
         db.query(
-            "UPDATE profesores SET nombre,experiencia VALUES(?,?) WHERE id = ?",
+            "UPDATE profesores SET nombre=?,experiencia=?  WHERE id = ?",
             [
                 nombre,
                 experiencia,
